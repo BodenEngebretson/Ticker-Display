@@ -54,9 +54,9 @@ int main() {
     if (!(std::cin >> stock)) {
       std::cout << "Error: Not a valid input.\n";
     } else if (std::find(stocks.begin(), stocks.end(), stock) != stocks.end()) {
-      stocks.push_back(stock);
+      std::cout << "Error: Duplicate Stock!!!";
     } else {
-      std::cout << "Error: Input is a duplicate...\n";
+      stocks.push_back(stock);
     }
   }
 
