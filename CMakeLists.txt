@@ -4,10 +4,11 @@ project(ticker_display)
 
 set(CMAKE_CXX_STANDARD 20)
 
-include_directories(include)
+include_directories(ticker_display PRIVATE inlcude database)
 
 add_executable(
     ticker_display
     src/main.cpp
+    database/sqlite3.c
 )
 

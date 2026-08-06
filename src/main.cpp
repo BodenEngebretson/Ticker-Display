@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <ios>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 class Stock {
@@ -30,35 +32,45 @@ std::istream &operator>>(std::istream &is, Stock &stock) {
   return is;
 }
 
+// Main Fnctionality
 int main() {
-
+  bool game_on = true;
   std::vector<Stock> stocks;
-
   // Intro message for display
   std::cout << "\n\nHello, Welcome to my Stock Ticker Display!\nWhat would you "
                "like to "
                "do?:\n\n1:) Display Stocks\n2:) Add Stock\n\n(Press q to quit)"
             << std::endl;
+  while (game_on) {
+    char input = 0;
+    std::cout << "Input: ";
+    std::cin >> input;
 
-  int input;
-  std::cin >> input;
+    switch (input) {
+    case '1':
+      for (int i = 0; i < stocks.size(); ++i) {
+        std::cout << stocks[i] << ' ' << std::endl;
+      }
+      break;
+    case '2': {
+      Stock stock;
+      std::cout << "(Format) TCKR DOUBLE:" << std::endl;
 
-  switch (input) {
-  case 1:
-    for (int i = 0; i < stocks.size(); ++i) {
-      std::cout << stocks[i];
+      if (!(std::cin >> stock)) {
+        std::cout << "Error: Not a valid input.\n";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      } else if (std::find(stocks.begin(), stocks.end(), stock) !=
+                 stocks.end()) {
+        std::cout << "Error: Duplicate Stock!!!";
+      } else {
+        stocks.push_back(stock);
+      }
+      break;
     }
-  case 2:
-    Stock stock;
-
-    if (!(std::cin >> stock)) {
-      std::cout << "Error: Not a valid input.\n";
-    } else if (std::find(stocks.begin(), stocks.end(), stock) != stocks.end()) {
-      std::cout << "Error: Duplicate Stock!!!";
-    } else {
-      stocks.push_back(stock);
+    case 'q':
+      game_on = false;
     }
   }
-
   return 0;
 }
