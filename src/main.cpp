@@ -1,9 +1,5 @@
-#include <algorithm>
-#include <ios>
 #include <iostream>
-#include <limits>
 #include <unordered_map>
-#include <vector>
 
 class Stock {
 
