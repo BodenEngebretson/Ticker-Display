@@ -1,6 +1,6 @@
 #include <iostream>
+#include <sqlite3.h>
 #include <unordered_map>
-
 class Stock {
 
 private:
@@ -19,6 +19,7 @@ public:
   friend std::istream &operator>>(std::istream &, Stock &);
 };
 
+// Overloading << and >> for os and is for Stock class
 std::ostream &operator<<(std::ostream &os, const Stock &stock) {
   os << stock.ticker << ' ' << stock.price;
   return os;
@@ -31,7 +32,6 @@ std::istream &operator>>(std::istream &is, Stock &stock) {
 
 // Main Fnctionality
 int main() {
-
   std::unordered_map<std::string, double> Stocks;
 
   Stocks["AAPL"] = 102.3;
