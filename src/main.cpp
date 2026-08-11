@@ -2,6 +2,7 @@
 #include <ios>
 #include <iostream>
 #include <limits>
+#include <unordered_map>
 #include <vector>
 
 class Stock {
@@ -34,13 +35,24 @@ std::istream &operator>>(std::istream &is, Stock &stock) {
 
 // Main Fnctionality
 int main() {
+
+  std::unordered_map<std::string, double> Stocks;
+
+  Stocks["AAPL"] = 102.3;
+  Stocks["NVDA"] = 123.4;
+  Stocks["ABC"] = 1000.4;
+  Stocks["XYZ"] = 1.2;
+  Stocks["AAAA"] = 103.4;
+
+  auto print_umap = [](const auto &key, const auto &value) {
+    std::cout << "Ticker:[" << key << "] Value:[" << value << "]\n";
+  };
+
   bool game_on = true;
-  std::vector<Stock> stocks;
   // Intro message for display
-  std::cout << "\n\nHello, Welcome to my Stock Ticker Display!\nWhat would you "
-               "like to "
-               "do?:\n\n1:) Display Stocks\n2:) Add Stock\n\n(Press q to quit)"
-            << std::endl;
+  std::cout << "Welcome to Ticker Display\n"
+            << "What would you like to do?\n1) Display Stocks\n2) Add "
+               "Stock\n3) Delete Stock\nq) Quit\n";
   while (game_on) {
     char input = 0;
     std::cout << "Input: ";
@@ -48,28 +60,34 @@ int main() {
 
     switch (input) {
     case '1':
-      for (int i = 0; i < stocks.size(); ++i) {
-        std::cout << stocks[i] << ' ' << std::endl;
+      for (const std::pair<std::string, double> &ticker : Stocks) {
+        print_umap(ticker.first, ticker.second);
       }
       break;
     case '2': {
-      Stock stock;
-      std::cout << "(Format) TCKR DOUBLE:" << std::endl;
+      std::string ticker;
+      double price;
+      std::cout << "Enter Ticker (ABCD): \n";
+      std::cin >> ticker;
+      std::cout << "Price: \n";
+      std::cin >> price;
 
-      if (!(std::cin >> stock)) {
-        std::cout << "Error: Not a valid input.\n";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-      } else if (std::find(stocks.begin(), stocks.end(), stock) !=
-                 stocks.end()) {
-        std::cout << "Error: Duplicate Stock!!!";
-      } else {
-        stocks.push_back(stock);
-      }
+      Stocks[ticker] = price;
+      std::cout << "Success!!\n";
+      break;
+    }
+    case '3': {
+      std::cout << "What is the Ticker of the stock you want to delete?\n";
+      std::string del_ticker;
+      std::cin >> del_ticker;
+      Stocks.erase(del_ticker);
+      std::cout << "Success!!\n";
       break;
     }
     case 'q':
+      std::cout << "Turning Off...\n";
       game_on = false;
+      break;
     }
   }
   return 0;
