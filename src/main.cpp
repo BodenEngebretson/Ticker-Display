@@ -1,5 +1,5 @@
+#include "../database/db_manager.hpp"
 #include <iostream>
-#include <sqlite3.h>
 #include <unordered_map>
 class Stock {
 
@@ -32,6 +32,9 @@ std::istream &operator>>(std::istream &is, Stock &stock) {
 
 // Main Fnctionality
 int main() {
+
+  DatabaseManager db("ticker_display.db");
+
   std::unordered_map<std::string, double> Stocks;
 
   Stocks["AAPL"] = 102.3;
