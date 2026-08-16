@@ -1,6 +1,10 @@
 #include "../database/db_manager.hpp"
+#include <curl/curl.h>
 #include <iostream>
+#include <random>
 #include <unordered_map>
+#define DEV
+
 class Stock {
 
 private:
@@ -32,8 +36,20 @@ std::istream &operator>>(std::istream &is, Stock &stock) {
 
 // Main Fnctionality
 int main() {
+#ifdef DEV
+  std::random_device rd;
+  std::mt19937 generator(rd());
+  std::uniform_int_distribution<int> distribution(1, 100);
 
+  int percent = distribution(generator);
+
+#endif
   DatabaseManager db("ticker_display.db");
+  static const char *create_sql_table = "CREATE TABLE IF NOT EXISTS STOCKS("
+                                        "TICKER TEXT NOT NULL UNIQUE"
+                                        "PRICE FLOAT NOT NULL);";
+
+  db.executeQuery(create_sql_table);
 
   std::unordered_map<std::string, double> Stocks;
 
