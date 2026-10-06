@@ -1,5 +1,3 @@
-#include "../database/db_manager.hpp"
-#include <curl/curl.h>
 #include <iostream>
 #include <random>
 #include <unordered_map>
@@ -44,12 +42,6 @@ int main() {
   int percent = distribution(generator);
 
 #endif
-  DatabaseManager db("ticker_display.db");
-  static const char *create_sql_table = "CREATE TABLE IF NOT EXISTS STOCKS("
-                                        "TICKER TEXT NOT NULL UNIQUE"
-                                        "PRICE FLOAT NOT NULL);";
-
-  db.executeQuery(create_sql_table);
 
   std::unordered_map<std::string, double> Stocks;
 
