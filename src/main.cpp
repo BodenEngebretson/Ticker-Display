@@ -1,6 +1,11 @@
+#include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <random>
+#include <sstream>
+#include <string>
 #include <unordered_map>
+#include <vector>
 #define DEV
 
 class Stock {
@@ -32,6 +37,50 @@ std::istream &operator>>(std::istream &is, Stock &stock) {
   return is;
 }
 
+std::string format_price(const double price) {
+  std::ostringstream formatted;
+  formatted << std::fixed << std::setprecision(2) << price;
+  return formatted.str();
+}
+
+void print_stocks(const std::unordered_map<std::string, double> &stocks) {
+  std::vector<std::pair<std::string, double>> sorted_stocks(stocks.begin(),
+                                                            stocks.end());
+  std::sort(sorted_stocks.begin(), sorted_stocks.end(),
+            [](const auto &left, const auto &right) {
+              return left.first < right.first;
+            });
+
+  const std::string ticker_header = "Ticker";
+  const std::string price_header = "Price ($)";
+  std::size_t ticker_width = ticker_header.size();
+  std::size_t price_width = price_header.size();
+
+  for (const auto &[ticker, price] : sorted_stocks) {
+    ticker_width = std::max(ticker_width, ticker.size());
+    price_width = std::max(price_width, format_price(price).size());
+  }
+
+  const auto print_border = [&]() {
+    std::cout << '+' << std::string(ticker_width + 2, '-')
+              << '+' << std::string(price_width + 2, '-') << "+\n";
+  };
+
+  print_border();
+  std::cout << "| " << std::left << std::setw(ticker_width) << ticker_header
+            << " | " << std::right << std::setw(price_width) << price_header
+            << " |\n";
+  print_border();
+
+  for (const auto &[ticker, price] : sorted_stocks) {
+    std::cout << "| " << std::left << std::setw(ticker_width) << ticker << " | "
+              << std::right << std::setw(price_width) << format_price(price)
+              << " |\n";
+  }
+
+  print_border();
+}
+
 // Main Fnctionality
 int main() {
 #ifdef DEV
@@ -51,10 +100,6 @@ int main() {
   Stocks["XYZ"] = 1.2;
   Stocks["AAAA"] = 103.4;
 
-  auto print_umap = [](const auto &key, const auto &value) {
-    std::cout << "Ticker:[" << key << "] Value:[" << value << "]\n";
-  };
-
   bool game_on = true;
   // Intro message for display
   std::cout << "Welcome to Ticker Display\n"
@@ -67,9 +112,7 @@ int main() {
 
     switch (input) {
     case '1':
-      for (const std::pair<std::string, double> &ticker : Stocks) {
-        print_umap(ticker.first, ticker.second);
-      }
+      print_stocks(Stocks);
       break;
     case '2': {
       std::string ticker;
