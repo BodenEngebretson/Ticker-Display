@@ -8,35 +8,18 @@
 #include <vector>
 #define DEV
 
-class Stock {
+enum class Side { Buy, Sell }; // Makes a type that could either be Buy or Sell
 
-private:
-  double price;
+// Creates a data type for Order
+struct Order {
   std::string ticker;
-
-public:
-  // Getter and Setter Methods for Stock class
-  void set_price(const double new_price) { price = new_price; }
-  void set_ticker(const std::string &new_ticker) { ticker = new_ticker; }
-  double get_price() { return price; }
-  std::string get_ticker() { return ticker; }
-  bool operator==(const Stock &other) const { return ticker == other.ticker; }
-
-  friend std::ostream &operator<<(std::ostream &, const Stock &);
-  friend std::istream &operator>>(std::istream &, Stock &);
+  double price;
+  Side side;
+  int quantity;
+  int remaining_quantity;
 };
 
-// Overloading << and >> for os and is for Stock class
-std::ostream &operator<<(std::ostream &os, const Stock &stock) {
-  os << stock.ticker << ' ' << stock.price;
-  return os;
-}
-
-std::istream &operator>>(std::istream &is, Stock &stock) {
-  is >> stock.ticker >> stock.price;
-  return is;
-}
-
+// Formats the price to a precision of 2
 std::string format_price(const double price) {
   std::ostringstream formatted;
   formatted << std::fixed << std::setprecision(2) << price;
@@ -62,8 +45,8 @@ void print_stocks(const std::unordered_map<std::string, double> &stocks) {
   }
 
   const auto print_border = [&]() {
-    std::cout << '+' << std::string(ticker_width + 2, '-')
-              << '+' << std::string(price_width + 2, '-') << "+\n";
+    std::cout << '+' << std::string(ticker_width + 2, '-') << '+'
+              << std::string(price_width + 2, '-') << "+\n";
   };
 
   print_border();
@@ -81,8 +64,74 @@ void print_stocks(const std::unordered_map<std::string, double> &stocks) {
   print_border();
 }
 
+void submit_order(Order order, std::vector<Order> &buy_orders,
+                  std::vector<Order> &sell_orders) {
+  if (order.side == Side::Buy) {
+    for (Order &Sell_Order : sell_orders) {
+      if (Sell_Order.ticker == order.ticker) {
+        if (order.remaining_quantity == 0) {
+          break;
+        }
+        if (order.price >= Sell_Order.price) {
+          int traded_amount;
+          traded_amount =
+              std::min(order.remaining_quantity, Sell_Order.remaining_quantity);
+          Sell_Order.remaining_quantity =
+              Sell_Order.remaining_quantity - traded_amount;
+          order.remaining_quantity = order.remaining_quantity - traded_amount;
+        }
+      }
+    }
+    if (order.remaining_quantity > 0) {
+      buy_orders.push_back(order);
+    }
+  } else if (order.side == Side::Sell) {
+    for (Order &Buy_Order : buy_orders) {
+      if (order.remaining_quantity == 0) {
+        break;
+      }
+      if (order.price <= Buy_Order.price) {
+        int traded_amount;
+        traded_amount =
+            std::min(order.remaining_quantity, Buy_Order.remaining_quantity);
+        Buy_Order.remaining_quantity =
+            Buy_Order.remaining_quantity - traded_amount;
+        order.remaining_quantity = order.remaining_quantity - traded_amount;
+        if (order.remaining_quantity > 0) {
+          sell_orders.push_back(order);
+        }
+      }
+    }
+  }
+}
 // Main Fnctionality
 int main() {
+  Order order1;
+  order1.ticker = "AAPL";
+  order1.price = 103.4;
+  order1.side = Side::Buy;
+  order1.quantity = 6;
+  order1.remaining_quantity = order1.quantity;
+
+  Order order2;
+  order2.ticker = "AAPL";
+  order2.price = 103.0;
+  order2.side = Side::Sell;
+  order2.quantity = 5;
+  order2.remaining_quantity = order2.quantity;
+
+  std::vector<Order> incoming_orders;
+  std::vector<Order> buy_orders;
+  std::vector<Order> sell_orders;
+
+  incoming_orders.push_back(order1);
+  incoming_orders.push_back(order2);
+
+  for (const Order &order : incoming_orders) {
+    submit_order(order, buy_orders, sell_orders);
+    std::cout << "Success?!" << std::endl;
+  }
+
 #ifdef DEV
   std::random_device rd;
   std::mt19937 generator(rd());
