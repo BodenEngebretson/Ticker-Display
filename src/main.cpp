@@ -10,6 +10,19 @@
 
 enum class Side { Buy, Sell }; // Makes a type that could either be Buy or Sell
 
+// Overloading the << operator so that Side can be printing to the console
+std::ostream &operator<<(std::ostream &os, Side side) {
+  switch (side) {
+  case Side::Buy:
+    os << "BUY";
+    break;
+  case Side::Sell:
+    os << "SELL";
+    break;
+  }
+
+  return os;
+}
 // Creates a data type for Order
 struct Order {
   std::string ticker;
@@ -63,7 +76,15 @@ void print_stocks(const std::unordered_map<std::string, double> &stocks) {
 
   print_border();
 }
-
+void print_orderbook(const std::vector<Order> &buy_orders,
+                     const std::vector<Order> &sell_orders) {
+  for (const Order &buy_order : buy_orders) {
+    std::cout << buy_order.ticker << " | " << buy_order.side << std::endl;
+  }
+  for (const Order &sell_order : sell_orders) {
+    std::cout << sell_order.ticker << " | " << sell_order.side << std::endl;
+  }
+}
 void submit_order(Order order, std::vector<Order> &buy_orders,
                   std::vector<Order> &sell_orders) {
   if (order.side == Side::Buy) {
@@ -97,10 +118,10 @@ void submit_order(Order order, std::vector<Order> &buy_orders,
         Buy_Order.remaining_quantity =
             Buy_Order.remaining_quantity - traded_amount;
         order.remaining_quantity = order.remaining_quantity - traded_amount;
-        if (order.remaining_quantity > 0) {
-          sell_orders.push_back(order);
-        }
       }
+    }
+    if (order.remaining_quantity > 0) {
+      sell_orders.push_back(order);
     }
   }
 }
@@ -128,6 +149,7 @@ int main() {
   incoming_orders.push_back(order2);
 
   for (const Order &order : incoming_orders) {
+    print_orderbook(buy_orders, sell_orders);
     submit_order(order, buy_orders, sell_orders);
     std::cout << "Success?!" << std::endl;
   }
